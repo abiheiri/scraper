@@ -10,13 +10,16 @@ class Scraper():
     author='Al Biheiri (al@forgottheaddress.com)'
     HTTPTimeOutValue=60
 
-    def do_get(self, fqdn):
+    def do_get(self, fqdn, addURL):
 
         page = requests.get(fqdn, timeout=self.HTTPTimeOutValue)
         
         bs = BeautifulSoup(page.content, features='lxml')
         for link in bs.findAll('a'):
-            print (fqdn + link.get('href'))
+            if addURL == 1:
+                print (fqdn + link.get('href'))
+            else:
+                print (link.get('href'))
 
 
 
@@ -37,14 +40,19 @@ class Scraper():
 
 
         group = parser.add_mutually_exclusive_group()
-        group.add_argument("-g", dest="get", metavar="GET", help="type the web address")
+        group.add_argument("-g", dest="get", metavar="http://mywebsite", help="get all the links inside a website")
         
+        parser.add_argument("-a", dest="add", action="store_true", help="append the url to the front of each result")
+
 
 
         args = parser.parse_args()
 
         if args.get:
-            self.do_get(args.get)
+            if args.add:
+                self.do_get(args.get, addURL=1)
+            else:
+                self.do_get(args.get, addURL=0)
 
         else:
             print(f'Usage: {sys.argv[0]} -h', "for help.")
