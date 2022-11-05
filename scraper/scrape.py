@@ -4,11 +4,12 @@ from bs4 import BeautifulSoup
 import argparse, requests, sys, re
 
 
-class Scraper():
+class Scraper:
     prog='scraper'
     version='1.0'
     author='Al Biheiri (al@forgottheaddress.com)'
     HTTPTimeOutValue=60
+
 
     def do_get(self, fqdn, addURL):
 
