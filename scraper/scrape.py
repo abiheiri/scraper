@@ -11,7 +11,7 @@ class Scraper:
     HTTPTimeOutValue=60
 
 
-    def do_get(self, fqdn, addURL):
+    def do_list(self, fqdn, addURL, maxDepth):
 
         page = requests.get(fqdn, timeout=self.HTTPTimeOutValue)
         
@@ -41,19 +41,27 @@ class Scraper:
 
 
         group = parser.add_mutually_exclusive_group()
-        group.add_argument("-g", dest="get", metavar="http://mywebsite", help="get all the links inside a website")
+        group.add_argument("-l", dest="list", metavar="http://mywebsite", help="list all the links inside a website")
         
         parser.add_argument("-a", dest="add", action="store_true", help="append the url to the front of each result")
+        parser.add_argument("-m", dest="maxdepth", metavar="NUMBER", help="drill down to a maxdepth of", type=int)
 
 
 
         args = parser.parse_args()
+        addURL = 0
+        maxDepth = 0
 
-        if args.get:
+        if args.list:
             if args.add:
-                self.do_get(args.get, addURL=1)
-            else:
-                self.do_get(args.get, addURL=0)
+                addURL=1
+            if args.maxdepth:
+                maxDepth = args.maxdepth
+                if maxDepth > 10:
+                    print ("Bro your nuts. I'm not doing that large of a traverse")
+                    return
+
+            self.do_list(args.list, addURL, maxDepth)
 
         else:
             print(f'Usage: {sys.argv[0]} -h', "for help.")
