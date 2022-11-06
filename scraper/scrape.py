@@ -21,8 +21,10 @@ class Scraper:
                 print (fqdn + link.get('href'))
             else:
                 print (link.get('href'))
+                # print("href: {}".format(link.get("href")))
 
-
+    def do_listWithDepth(self, fqdn, addURL, maxDepth):
+        pass
 
     def parse_args(self, args):
         from argparse import RawTextHelpFormatter
