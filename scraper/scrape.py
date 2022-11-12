@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from bs4 import BeautifulSoup
-import argparse, requests, sys, re
+import sys, argparse, requests
 
 
 class Scraper:
@@ -13,9 +13,13 @@ class Scraper:
 
     def do_list(self, fqdn, addURL, maxDepth):
 
+        if maxDepth > 0:
+            self.do_listWithDepth(fqdn, addURL, maxDepth)
+            return
+            
         page = requests.get(fqdn, timeout=self.HTTPTimeOutValue)
-        
         bs = BeautifulSoup(page.content, features='lxml')
+
         for link in bs.findAll('a'):
             if addURL == 1:
                 print (fqdn + link.get('href'))
@@ -23,8 +27,21 @@ class Scraper:
                 print (link.get('href'))
                 # print("href: {}".format(link.get("href")))
 
+
     def do_listWithDepth(self, fqdn, addURL, maxDepth):
-        pass
+        print ("This function is not implemented yet")
+        return
+        results = []
+        page = requests.get(fqdn, timeout=self.HTTPTimeOutValue)
+        bs = BeautifulSoup(page.content, features='lxml')
+        for link in bs.findAll('a'):
+            if addURL == 1:
+                print (fqdn + link.get('href'))
+            else:
+                print (link.get('href'))
+
+
+
 
     def parse_args(self, args):
         from argparse import RawTextHelpFormatter
@@ -33,7 +50,7 @@ class Scraper:
         '''
 
         ----------------------------------------------------------------
-        This is designed to scrape
+        This is designed to scrape websites and return all the links <a href="http://website"></a> from the page
         
         ''',
         )
@@ -59,7 +76,7 @@ class Scraper:
                 addURL=1
             if args.maxdepth:
                 maxDepth = args.maxdepth
-                if maxDepth > 10:
+                if maxDepth > 5:
                     print ("Bro your nuts. I'm not doing that large of a traverse")
                     return
 
