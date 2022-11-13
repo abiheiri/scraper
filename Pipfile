@@ -9,6 +9,7 @@ argparse = "*"
 beautifulsoup4 = "*"
 lxml = "*"
 pytest = "*"
+pylint = "*"
 
 [dev-packages]
 
