@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 from bs4 import BeautifulSoup
-import sys, argparse, requests
+import sys, argparse, requests, re
 
 
 class Scraper:
     prog='scraper'
     version='1.0'
     author='Al Biheiri (al@forgottheaddress.com)'
-    HTTPTimeOutValue=60
+    HTTPTimeOutValue=10
 
 
     def do_list(self, fqdn, addURL, maxDepth):
@@ -32,41 +32,55 @@ class Scraper:
     def do_listWithDepth(self, fqdn, addURL, maxDepth):
     
         results = []
-
+        
         # Get the top level site
         page = requests.get(fqdn, timeout=self.HTTPTimeOutValue)
         bs = BeautifulSoup(page.content, features='lxml')
-        
         for link in bs.findAll('a'):
+            if addURL == 1:
+                try:
+                    results.append(fqdn + link.get('href'))
+                except Exception as e: print(e)
+            else:
                 results.append(link.get('href'))
 
-#happy - a
-# a -> get -> poppy
 
-        # Get the subsites
-        for subsite in results:
-            print (subsite)
-            # return
+        siteRemaining = len(results)
+
+        for i in results:
+            # print(i)
             while maxDepth > 0:
-                # subtract from maxdepth total
-                maxDepth -= 1
-                # print (maxDepth)
-                # return
                 
-                # iterate over the next indicies
+                maxDepth -= 1
+                siteRemaining -=1
+                # print(siteRemaining)
+                
                 try:
-                    page = requests.get(subsite, timeout=self.HTTPTimeOutValue)
+                    page = requests.get(results[siteRemaining], timeout=self.HTTPTimeOutValue)
                     bs = BeautifulSoup(page.content, features='lxml')
-                    results.pop(0)
 
                     for link in bs.findAll('a'):
-                        results.append(link.get('href'))
-                        # results.pop(0)
-                        # print(results)
+                        
+                        # Skip empty results
+                        if link.get('href') is None:
+                            continue
+                        
+                        # Determine if full URL provided in <a href
+                        if link.get('href').find('http') != -1:
+                            results.append(link.get('href'))
+                        else:
+                            results.append(results[siteRemaining] + link.get('href'))
+
                 except(ValueError):
                     continue
 
-
+        try:
+            results.sort()
+        except:
+            pass
+        
+        # print(results)
+        # print(type(results))
         print(*results, sep='\n')
 
 
@@ -93,8 +107,8 @@ class Scraper:
         group = parser.add_mutually_exclusive_group()
         group.add_argument("-l", dest="list", metavar="http://mywebsite", help="list all the links inside a website")
         
-        parser.add_argument("-a", dest="add", action="store_true", help="append the url to the front of each result")
-        parser.add_argument("-m", dest="maxdepth", metavar="NUMBER", help="drill down to a maxdepth of", type=int)
+        parser.add_argument("-a", dest="add", action="store_true", help="add back the url to the front of each result")
+        parser.add_argument("-m", dest="maxdepth", metavar="NUMBER", help="drill down to a maxdepth of X", type=int)
 
 
 
