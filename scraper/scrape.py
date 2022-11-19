@@ -29,16 +29,41 @@ class Scraper:
 
 
     def do_listWithDepth(self, fqdn, addURL, maxDepth):
-        print ("This function is not implemented yet")
-        return
+    
         results = []
+
+        # Get the top level site
         page = requests.get(fqdn, timeout=self.HTTPTimeOutValue)
         bs = BeautifulSoup(page.content, features='lxml')
+        
         for link in bs.findAll('a'):
-            if addURL == 1:
-                print (fqdn + link.get('href'))
-            else:
-                print (link.get('href'))
+                results.append(link.get('href'))
+
+
+
+        # Get the subsites
+        for subsite in results:
+            while maxDepth > 0:
+                # subtract from maxdepth total
+                maxDepth -= 1
+                print (maxDepth)
+                # return
+                
+                try:
+                    page = requests.get(subsite, timeout=self.HTTPTimeOutValue)
+                    bs = BeautifulSoup(page.content, features='lxml')
+
+                    for sublink in bs.findAll('a'):
+                        results.append(sublink.get('href'))
+                        print(results)
+                except(ValueError):
+                    continue
+
+        my_string = '\n'.join(results)
+        print(my_string)
+
+
+
 
 
 
@@ -76,8 +101,8 @@ class Scraper:
                 addURL=1
             if args.maxdepth:
                 maxDepth = args.maxdepth
-                if maxDepth > 5:
-                    print ("Bro your nuts. I'm not doing that large of a traverse")
+                if maxDepth > 2:
+                    print ("Number too large. Your computer will not be able to handle it!")
                     return
 
             self.do_list(args.list, addURL, maxDepth)
