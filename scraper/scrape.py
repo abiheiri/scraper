@@ -4,12 +4,12 @@ from bs4 import BeautifulSoup
 import requests
 import argparse
 import sys
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 class Scraper:
     def __init__(self):
         self.prog = 'scraper'
-        self.version = '1.1'
+        self.version = '1.2'
         self.author = 'Al Biheiri (al@forgottheaddress.com)'
         self.http_timeout = 10
         self.visited_urls = set()
@@ -32,7 +32,7 @@ class Scraper:
             links = []
             for link in soup.findAll('a'):
                 href = link.get('href')
-                if href:
+                if href and (href.startswith('http://') or href.startswith('https://')):
                     full_url = urljoin(url, href)
                     links.append(full_url)
 
@@ -55,6 +55,10 @@ class Scraper:
 
     def run(self, url, max_depth):
         """ Run the scraper with the given arguments. """
+        # Check if the URL has a scheme, if not, prepend 'http://'
+        if not urlparse(url).scheme:
+            url = 'http://' + url
+
         if max_depth > 10:
             print("Depth too large. Limiting to 10 for performance reasons.")
             max_depth = 10
@@ -64,9 +68,10 @@ class Scraper:
     def parse_args(self, args):
         """ Parse command line arguments. """
         parser = argparse.ArgumentParser(description="Web Scraper")
+        parser.add_argument('url', help="URL to scrape")
+        parser.add_argument('-m', '--max_depth', type=int, help="Maximum depth to scrape", default=1)
         parser.add_argument('--version', action='version', version=f'{self.prog} {self.version}')
-        parser.add_argument("-l", dest="url", help="URL to scrape")
-        parser.add_argument("-m", dest="max_depth", type=int, help="Maximum depth to scrape", default=1)
+
         return parser.parse_args(args)
 
 if __name__ == "__main__":
