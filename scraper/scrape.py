@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 import argparse
 import sys
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 class Scraper:
     def __init__(self):
@@ -24,9 +24,11 @@ class Scraper:
             links = []
             for link in soup.findAll('a'):
                 href = link.get('href')
-                if href and not href.startswith('?'):
+                if href:
                     full_url = urljoin(url, href)
-                    links.append(full_url)
+                    # Check if the URL is an HTTP URL
+                    if urlparse(full_url).scheme in ['http', 'https']:
+                        links.append(full_url)
 
             return links
         except requests.RequestException as e:
