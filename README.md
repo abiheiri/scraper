@@ -6,6 +6,7 @@ A simple web scraping tool that extracts links from a given website up to a spec
 
 - Python 3.x
 - Pipenv
+- Docker (optional, for running in a Docker container)
 
 ## Setting Up the Environment
 
@@ -27,7 +28,7 @@ pipenv install
 
 ## Usage
 
-To use the tool, first activate the pipenv shell, then run the following command:
+To use the tool locally, first activate the pipenv shell, then run the following command:
 
 ```
 # Activate the pipenv environment
@@ -67,6 +68,34 @@ To check the version of the tool, use the `--version` flag:
 
 ```
 python scrape.py --version
+```
+
+## Running in a Docker Container
+
+You can also run the web scraper tool in a Docker container. Here's how to do it:
+
+### Building the Docker Image
+
+Ensure that you have Docker installed on your machine. Then, navigate to the directory containing your Dockerfile and run the following command to build the Docker image:
+
+```
+docker build -t scraper:1.0 .
+```
+
+### Running the Docker Container
+
+Once the image is built, you can run the Docker container with the following command:
+
+```
+docker run scraper:1.0 [url] [-m MAX_DEPTH] [-f FILE_EXTENSION]
+```
+
+Replace `[url]`, `[-m MAX_DEPTH]`, and `[-f FILE_EXTENSION]` with your desired arguments.
+
+**Example:**
+
+```
+docker run scraper:1.0 http://example.com -m 3 -f mkv
 ```
 
 ## Author
