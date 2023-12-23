@@ -10,15 +10,11 @@ from urllib.parse import urljoin
 class Scraper:
     def __init__(self):
         self.prog = 'scraper'
-        self.version = '1.4'
+        self.version = '1.4.7'
         self.author = 'Al Biheiri (al@forgottheaddress.com)'
         self.http_timeout = 10
         self.visited_urls = set()
         self.filter_ext = None
-
-    def is_directory_link(self, url):
-        # Simple heuristic: if the URL doesn't have a period in the last segment, it's likely a directory
-        return '/' in url.rstrip('/') and '.' not in url.rstrip('/').split('/')[-1]
 
     def fetch_links(self, url):
         """ Fetch links from a given URL and return full URLs. """
@@ -40,18 +36,28 @@ class Scraper:
             print(f"Error fetching {url}: {e}")
             return []
 
-    def scrape_links(self, url, depth, link_limit=10):
-        """ Recursively scrape links to a specified depth, printing as they are found. """
+    def is_valid_link(self, link):
+        """ Check if a link is valid based on the filter. """
+        if self.filter_ext:
+            return link.lower().endswith(self.filter_ext)
+        return True
+
+    def is_directory_link(self, link):
+        """ Check if a link is likely a directory. """
+        return '/' in link and '.' not in link.split('/')[-1]
+
+    def scrape_links(self, url, depth):
+        """ Recursively scrape links to a specified depth. """
         if depth <= 0 or url in self.visited_urls:
             return
 
         self.visited_urls.add(url)
 
-        links = self.fetch_links(url)[:link_limit]
+        links = self.fetch_links(url)
         for link in links:
-            if self.filter_ext and link.lower().endswith(self.filter_ext):
-                print(link)
-            if self.is_directory_link(link) or (self.filter_ext and link.lower().endswith(self.filter_ext)):
+            if self.is_valid_link(link) or self.is_directory_link(link):
+                if self.is_valid_link(link):
+                    print(link)
                 self.scrape_links(link, depth - 1)
 
     def run(self, url, max_depth):
@@ -63,7 +69,8 @@ class Scraper:
             print("Depth too large. Limiting to 10 for performance reasons.")
             max_depth = 10
 
-        print(f"Filter set to: {self.filter_ext}")
+        if self.filter_ext:
+            print(f"Filter set to: {self.filter_ext}")
         self.scrape_links(url, max_depth)
 
     def parse_args(self, args):
