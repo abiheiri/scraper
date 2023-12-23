@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 class Scraper:
     def __init__(self):
         self.prog = 'scraper'
-        self.version = '1.0'
+        self.version = '1.1'
         self.author = 'Al Biheiri (al@forgottheaddress.com)'
         self.http_timeout = 10
         self.visited_urls = set()

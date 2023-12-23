@@ -7,7 +7,6 @@ options:
   -h, --help           show this help message and exit
   --version            show program version number and exit
   -l http://mywebsite  list all the links inside a website
-  -a                   add back the url to the front of each result
   -m NUMBER            drill down to a maxdepth of
 
         ----------------------------------------------------------------
