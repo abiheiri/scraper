@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 import argparse
 import sys
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 class Scraper:
     def __init__(self):
@@ -17,6 +17,14 @@ class Scraper:
     def fetch_links(self, url):
         """ Fetch links from a given URL and return full URLs. """
         try:
+            # Make a HEAD request to check the content type
+            head_response = requests.head(url, timeout=self.http_timeout)
+            content_type = head_response.headers.get('Content-Type', '')
+
+            if 'html' not in content_type.lower():
+                return []  # Skip non-HTML content
+
+            # Proceed with GET request if content is HTML
             response = requests.get(url, timeout=self.http_timeout)
             response.raise_for_status()
             soup = BeautifulSoup(response.content, features='lxml')
@@ -26,9 +34,7 @@ class Scraper:
                 href = link.get('href')
                 if href:
                     full_url = urljoin(url, href)
-                    # Check if the URL is an HTTP URL
-                    if urlparse(full_url).scheme in ['http', 'https']:
-                        links.append(full_url)
+                    links.append(full_url)
 
             return links
         except requests.RequestException as e:
