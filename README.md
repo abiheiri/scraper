@@ -54,7 +54,6 @@ python scrape.py http://example.com
 Scrape links from a website up to a depth of 3:
 ```bash
 python scrape.py http://example.com -m 3
-Version
 ```
 
 To check the version of the tool, use the --version flag:
