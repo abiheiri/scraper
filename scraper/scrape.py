@@ -9,10 +9,11 @@ from urllib.parse import urljoin
 class Scraper:
     def __init__(self):
         self.prog = 'scraper'
-        self.version = '1.1'
+        self.version = '1.3'
         self.author = 'Al Biheiri (al@forgottheaddress.com)'
         self.http_timeout = 10
         self.visited_urls = set()
+        self.filter_ext = None
 
     def fetch_links(self, url):
         """ Fetch links from a given URL and return full URLs. """
@@ -26,9 +27,9 @@ class Scraper:
                 href = link.get('href')
                 if href:
                     full_url = urljoin(url, href)
-                    # Include only HTTP or HTTPS links
-                    if full_url.startswith('http://') or full_url.startswith('https://'):
-                        links.append(full_url)
+                    if full_url.startswith(('http://', 'https://')):
+                        if not self.filter_ext or full_url.endswith(self.filter_ext):
+                            links.append(full_url)
 
             return links
         except requests.RequestException as e:
@@ -63,10 +64,15 @@ class Scraper:
         parser = argparse.ArgumentParser(description="Web Scraper")
         parser.add_argument('url', help="URL to scrape")
         parser.add_argument('-m', '--max_depth', type=int, help="Maximum depth to scrape", default=1)
+        parser.add_argument('-f', '--filter', type=str, help="Filter results by file extension, e.g., '.mp4'")
         parser.add_argument('--version', action='version', version=f'{self.prog} {self.version}')
 
-        return parser.parse_args(args)
+        args = parser.parse_args(args)
+        if args.filter:
+            self.filter_ext = args.filter.lower()
+        return args
 
 if __name__ == "__main__":
-    args = Scraper().parse_args(sys.argv[1:])
-    Scraper().run(args.url, args.max_depth)
+    scraper = Scraper()
+    args = scraper.parse_args(sys.argv[1:])
+    scraper.run(args.url, args.max_depth)
