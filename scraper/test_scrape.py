@@ -15,8 +15,7 @@ def test_help_flag():
 def test_version_flag():
     scraper = Scraper()
     with pytest.raises(SystemExit) as e:
-        with pytest.capsys.disabled():
-            scraper.parse_args(['--version'])
+        scraper.parse_args(['--version'])
     assert e.value.code == 0
 
 # Mock test for scraping a URL with depth 1
@@ -89,4 +88,3 @@ def test_scrape_with_mp3_filter(m):
     assert 'http://www.abiheiri.com/song1.mp3' in output
     assert 'http://www.abiheiri.com/song2.mp3' in output
     assert 'http://www.abiheiri.com/document.pdf' not in output
-
